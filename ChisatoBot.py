@@ -1,6 +1,26 @@
 import json, os
 import discord
 from discord.ext import commands
+import pathlib
+
+# Commands path
+BASE_DIR = pathlib.Path("__file__").parent
+COMMANDS_DIR = BASE_DIR / "commands"
+
+class DecoratedAns():
+    def __init__(self, title, description) -> None:
+        self.title = title
+        self.content = description
+
+        self.ans = discord.Embed(
+            title = self.title,
+            description = self.content,
+            colour = int("#E8053A", 16)
+        )
+    
+    @property
+    def send(self):
+        return self.ans
 
 def main():
     # Opens the configuration file if exists
@@ -16,7 +36,8 @@ def main():
         with open('config.json', 'w') as config:
             json.dump(template, config)
 
-    # Variables declaration
+    # BOT INITIALIZATION
+
     prefix = configData["prefix"]
     token = configData["token"]
     intents = discord.Intents.all()
@@ -29,9 +50,16 @@ def main():
         status = discord.Status.online
     )
 
-    @bot.command(name = "hi", help = "Chisato te saludará.")
-    async def hi(ctx):
-        await ctx.reply('¡Wisu, wisu! ¿Necesitas algo de Chisato?')
+    # EVENTS
+
+    @bot.event
+    async def on_ready():
+        print("El bot está listo para usarse.")
+
+        # Loads files in commands folder
+        for commandFile in COMMANDS_DIR.glob("*.py"):
+            if commandFile.name != "__init__.py":
+                await bot.load_extension(f"commands.{commandFile.name[:-3]}")
 
     bot.run(token)
 
