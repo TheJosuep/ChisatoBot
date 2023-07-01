@@ -1,0 +1,5 @@
+# These are the python requirements:
+
+python3 -m pip install -U discord.py
+py install pymongo
+py install python-dotenv

@@ -1,9 +1,12 @@
-import json, os
 import discord
-from discord.ext import commands
 import pathlib
+import json, os
+from dotenv import load_dotenv
+from discord.ext import commands
+from db import database
 
-# Commands path
+# DIRECTORIES
+
 BASE_DIR = pathlib.Path("__file__").parent
 COMMANDS_DIR = BASE_DIR / "commands"
 
@@ -23,6 +26,10 @@ class DecoratedAns():
         return self.ans
 
 def main():
+
+    # Dotenv initialization
+    load_dotenv()
+
     # Opens the configuration file if exists
     # Uses json.load(file)
     if os.path.exists('config.json'):
@@ -38,8 +45,9 @@ def main():
 
     # BOT INITIALIZATION
 
+    # TODO: Get prefix from the database
     prefix = configData["prefix"]
-    token = configData["token"]
+    token = os.getenv("TOKEN")
     intents = discord.Intents.all()
     
     bot = commands.Bot(
@@ -50,16 +58,34 @@ def main():
         status = discord.Status.online
     )
 
-    # EVENTS
-
     @bot.event
     async def on_ready():
-        print("El bot está listo para usarse.")
+        print("[CHISATO_BOT]: Iniciando bot...")
 
-        # Loads files in commands folder
+        # Database connection
+        global connection
+        connection = database.DBConnect()
+
+        # File loading from commands folder
         for commandFile in COMMANDS_DIR.glob("*.py"):
             if commandFile.name != "__init__.py":
                 await bot.load_extension(f"commands.{commandFile.name[:-3]}")
+
+        print("[CHISATO_BOT]: El bot está listo para usarse.")
+
+                
+    # EVENTS
+
+    @bot.event
+    async def on_guild_join(guild):
+        exists = database.VerifyServer(connection, guild)
+        
+        if exists:
+            # TODO: Call update server info function
+            print(f"[CHISATO_BOT]: El servidor {guild.name} ya ha sido registrado anteriormente.")
+        else:
+            database.RegisterServer(connection, guild)
+            print(f"[CHISATO_BOT]: Se ha registrado el servidor {guild.name}.")
 
     bot.run(token)
 
