@@ -81,8 +81,8 @@ def main():
         exists = database.VerifyServer(connection, guild)
         
         if exists:
-            # TODO: Call update server info function
             print(f"[CHISATO_BOT]: El servidor {guild.name} ya ha sido registrado anteriormente.")
+            database.UpdateServer(connection, guild)
         else:
             database.RegisterServer(connection, guild)
             print(f"[CHISATO_BOT]: Se ha registrado el servidor {guild.name}.")
