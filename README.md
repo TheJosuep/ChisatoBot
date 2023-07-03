@@ -1,6 +1,6 @@
 # ChisatoBot
 
-Hello! This is **Chisato Arashi** bot, from **Love Live! Superstar!!** made with Python and MongoDB.
+Hello! This is **Chisato Arashi** bot from **Love Live! Superstar!!** made with Python and MongoDB.
 
 # **Relevant information:**
 
