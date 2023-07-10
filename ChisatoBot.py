@@ -1,8 +1,9 @@
 import discord
-import pathlib, logging, json, os
+import pathlib, json, os
 from dotenv import load_dotenv
 from discord.ext import commands
 from db import database
+# import logging
 
 # DIRECTORIES
 
@@ -11,7 +12,7 @@ COMMANDS_DIR = BASE_DIR / "commands"
 
 # LOGGING
 
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+# handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
 class DecoratedAns():
     def __init__(self, title, description) -> None:
@@ -103,8 +104,8 @@ def main():
     #     if message.author.id == bot.user.id:
     #         return
 
-    # Logging can be disabled by setting None instead of the handler
-    bot.run(token = token, log_handler = handler)
+    # Logging can enabled by setting the handler with log_handler = None
+    bot.run(token = token)
 
 if __name__ == '__main__':
     main()
