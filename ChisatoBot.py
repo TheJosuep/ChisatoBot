@@ -92,7 +92,7 @@ def main():
             print(f"[CHISATO_BOT]: Se ha registrado el servidor {guild.name}.")
     
     @bot.event
-    async def on_member_join(self, member):
+    async def on_member_join(member):
         guild = member.guild
 
         # If announcements channel exists
