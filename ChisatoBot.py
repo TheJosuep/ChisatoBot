@@ -1,14 +1,18 @@
 import discord
-import pathlib
-import json, os
+import pathlib, json, os
 from dotenv import load_dotenv
 from discord.ext import commands
 from db import database
+# import logging
 
 # DIRECTORIES
 
 BASE_DIR = pathlib.Path("__file__").parent
 COMMANDS_DIR = BASE_DIR / "commands"
+
+# LOGGING
+
+# handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 
 class DecoratedAns():
     def __init__(self, title, description) -> None:
@@ -86,8 +90,22 @@ def main():
         else:
             database.RegisterServer(connection, guild)
             print(f"[CHISATO_BOT]: Se ha registrado el servidor {guild.name}.")
+    
+    @bot.event
+    async def on_member_join(member):
+        guild = member.guild
 
-    bot.run(token)
+        # If announcements channel exists
+        if guild.system_channel is not None:
+            await guild.system_channel.send(f"¡Bienvenido al servidor, {member.mention}!")
+
+    # @bot.event
+    # async def on_message(message):
+    #     if message.author.id == bot.user.id:
+    #         return
+
+    # Logging can enabled by setting the handler with log_handler = None
+    bot.run(token = token)
 
 if __name__ == '__main__':
     main()

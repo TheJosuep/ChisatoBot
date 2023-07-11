@@ -9,5 +9,11 @@ class Utilities(commands.Cog):
     async def hi(self, ctx):
         await ctx.reply('¡Wisu, wisu! ¿Necesitas algo de Chisato?')
 
+    @commands.command(help = "Chisato dirá algo por ti: c.say <texto>")
+    async def say(self, ctx, *, text: str = None):
+        if text is not None:
+            await ctx.send(text)
+            await ctx.message.delete()
+
 async def setup(bot):
     await bot.add_cog(Utilities(bot))
