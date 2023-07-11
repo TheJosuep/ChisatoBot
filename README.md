@@ -16,8 +16,8 @@ All imports can be found in the [pyconfig](https://github.com/TheJosuep/ChisatoB
 <details><summary> Functionalities (so far): </summary>
 
 * Register a server and update its information in the database when joining.
-* Say hi.
-* Mass ban.
+* Say hi by command and when a user joins the server.
+* Ban, unban, get server bans.
 
 Yep, it has just begun.
 
