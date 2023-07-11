@@ -50,9 +50,9 @@ class Administration(commands.Cog):
         # Converts members mention and given reason in new variables for easier printing
         if len(bannedMembers) > 1:
             membersMention = ', '.join(bannedMembers[:-1]) + ' y ' + bannedMembers[-1]
-        else:
+        elif len(bannedMembers) > 0:
             membersMention = bannedMembers[0]
-            
+
         givenReason = '.' if reason is None else ' por ' + reason + '.'
 
         # Validates the number of members banned and replies
@@ -61,7 +61,7 @@ class Administration(commands.Cog):
         elif len(bannedMembers) == 1:
             await ctx.send(f"{membersMention} fue baneado del servidor{givenReason}")
         else:
-            await ctx.send("Un error inesperado ha ocurrido...")        
+            await ctx.send("Un error inesperado ha ocurrido...")
     
     @ban.error
     async def ban_error(self, ctx, error):
@@ -99,22 +99,47 @@ class Administration(commands.Cog):
 
     @commands.command(help = "Remueve el ban de un usuario: c.ban <usuario> <razón | opcional>")
     @has_ban_permissions()
-    async def unban(self, ctx, user = None, *, reason: str = None):
+    async def unban(self, ctx, users: commands.Greedy[discord.User] = None, *, reason: str = None):
         bannedUsers = [entry.user async for entry in ctx.guild.bans()]
+        
+        unbannedMembers = []
+        nonbannedMembers = []
+
+        if users is None:
+            await ctx.reply("¡Debes ingresar al menos a un usuario!")
+        else:
+            for user in users:
+                if len(bannedUsers) > 0:
+                    for bannedUser in bannedUsers:
+                        if bannedUser == user:
+                            unbannedMembers.append(user.name)
+                            await ctx.guild.unban(bannedUser)
+                        else:
+                            nonbannedMembers.append(user.name)
+            
+        # Converts members mention and given reason in new variables for easier printing
+        if len(unbannedMembers) > 1:
+            membersMention = ', '.join(unbannedMembers[:-1]) + ' y ' + unbannedMembers[-1]
+        elif len(unbannedMembers) > 0:
+            membersMention = unbannedMembers[0]
+
+        if len(nonbannedMembers) > 1:
+            errorMention = ', '.join(nonbannedMembers[:-1]) + ' y ' + nonbannedMembers[-1]
+        elif len(nonbannedMembers) > 0:
+            errorMention = nonbannedMembers[0]
+
         givenReason = '.' if reason == None else ' por ' + reason + '.'
 
-        if user is None:
-            await ctx.reply("¡Debes ingresar el nombre o ID de un usuario!")
-        else:
-            if isinstance(user, str):
-                for bannedUser in bannedUsers:
-                    if bannedUser.id == int(user):
-                        await ctx.guild.unban(bannedUser)
-                        await ctx.send(f"El usuario {bannedUser.name} fue desbaneado{givenReason}")
+        if len(nonbannedMembers) > 0:
+                await ctx.send(f"{'Los usuarios '+errorMention+' no fueron encontrados' if len(nonbannedMembers) > 1 else 'El usuario '+errorMention+' no fue encontrado'} en la lista de baneados.")
 
-                        return
-                
-                await ctx.reply("El usuario no ha sido encontrado en la lista de baneados.")
+        # Validates the number of members banned and replies
+        if len(unbannedMembers) > 1:
+            await ctx.send(f"{membersMention} fueron desbaneados del servidor{givenReason}")
+        elif len(unbannedMembers) == 1:
+            await ctx.send(f"{membersMention} fue desbaneado del servidor{givenReason}")
+        else:
+            await ctx.reply("No hay usuarios baneados en el servidor.")
 
 async def setup(bot):
     await bot.add_cog(Administration(bot))
