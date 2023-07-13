@@ -44,7 +44,7 @@ class Administration(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help = "Banea a uno o más usuarios: c.ban <usuario(s)> <borrar mensajes (días) | opcional> <razón | opcional)>")
+    @commands.command(help = "Banea a uno o más usuarios: c.ban <usuario(s)> <borrar mensajes (días) | opcional> <razón | opcional>")
     @has_ban_permissions()
     async def ban(self, ctx, users: commands.Greedy[discord.User] = None, deleteDays: typing.Optional[int] = 0,
                    *, reason: str = None):
