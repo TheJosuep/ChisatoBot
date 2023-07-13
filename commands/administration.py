@@ -96,6 +96,10 @@ class Administration(commands.Cog):
         else:
             await ctx.reply("No hay usuarios baneados en el servidor.")
                 
+    @bans.error
+    async def bans_error(self, ctx, error):
+        if isinstance(error, MissingPermissions):
+            await ctx.send(error)
 
     @commands.command(help = "Remueve el ban de un usuario: c.ban <usuario> <razón | opcional>")
     @has_ban_permissions()
@@ -140,6 +144,11 @@ class Administration(commands.Cog):
             await ctx.send(f"{membersMention} fue desbaneado del servidor{givenReason}")
         else:
             await ctx.reply("No hay usuarios baneados en el servidor.")
+    
+    @unban.error
+    async def unban_error(self, ctx, error):
+        if isinstance(error, MissingPermissions):
+            await ctx.send(error)
 
 async def setup(bot):
     await bot.add_cog(Administration(bot))
