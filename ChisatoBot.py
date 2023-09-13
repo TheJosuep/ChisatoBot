@@ -1,14 +1,9 @@
 import discord
-import pathlib, json, os
+import importlib, json, os
 from dotenv import load_dotenv
 from discord.ext import commands
 from db import database
 # import logging
-
-# DIRECTORIES
-
-BASE_DIR = pathlib.Path("__file__").parent
-COMMANDS_DIR = BASE_DIR / "commands"
 
 # LOGGING
 
@@ -70,10 +65,20 @@ def main():
         global connection
         connection = database.DBConnect()
 
+        commands_dir = "./commands"
+
         # File loading from commands folder
-        for commandFile in COMMANDS_DIR.glob("*.py"):
-            if commandFile.name != "__init__.py":
-                await bot.load_extension(f"commands.{commandFile.name[:-3]}")
+        for folder in os.listdir(commands_dir):
+            if os.path.isdir(os.path.join(commands_dir, folder)):
+                for command_file in os.listdir(os.path.join(commands_dir, folder)):
+                    if command_file.endswith(".py") and not command_file.startswith("__"):
+                        module_name = f"commands.{folder}.{command_file[:-3]}"
+                        try:
+                            importlib.import_module(module_name)
+                            await bot.load_extension(module_name)
+                            print(f"[CHISATO_BOT]: Cargada extensión {module_name}.")
+                        except Exception as e:
+                            print(f"[CHISATO_BOT]: Error al cargar la extensión {command_file}: {e}.")
 
         print("[CHISATO_BOT]: El bot está listo para usarse.")
 
@@ -92,17 +97,22 @@ def main():
             print(f"[CHISATO_BOT]: Se ha registrado el servidor {guild.name}.")
     
     @bot.event
-    async def on_member_join(member):
+    async def on_member_join(member: discord.Member):
         guild = member.guild
+
+        # Add default role
+        role = guild.get_role(1149530224791388282)
+        await member.add_roles(role, reason = None, atomic = True)
 
         # If announcements channel exists
         if guild.system_channel is not None:
-            await guild.system_channel.send(f"¡Bienvenido al servidor, {member.mention}!")
+            await guild.system_channel.send(f"Welcome, {member.mention}!")
 
     # @bot.event
     # async def on_message(message):
-    #     if message.author.id == bot.user.id:
-    #         return
+
+    # @bot.event
+    # async def on_reaction_add(reaction: discord.Reaction, user: discord.User):
 
     # Logging can enabled by setting the handler with log_handler = None
     bot.run(token = token)

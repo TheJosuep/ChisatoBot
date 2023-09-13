@@ -5,11 +5,11 @@ class Utilities(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(help = "Chisato te saludará.")
+    @commands.command(help = "Chisato will greet you.")
     async def hi(self, ctx):
-        await ctx.reply('¡Wisu, wisu! ¿Necesitas algo de Chisato?')
+        await ctx.reply('Wisu, wisu! Is there something Chisato can help you with?')
 
-    @commands.command(help = "Chisato dirá algo por ti: c.say <texto>")
+    @commands.command(help = "Chisato will say something for you: c.say <texto>")
     async def say(self, ctx, *, text: str = None):
         if text is not None:
             await ctx.send(text)

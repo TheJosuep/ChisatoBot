@@ -15,24 +15,24 @@ def higher_hierarchy(ctx, member):
 def has_ban_permissions():
     async def predicate(ctx):
         if ctx.author.guild_permissions.ban_members is False:
-            raise MissingPermissions("Parece que no tienes permisos suficientes para esto~.")
+            raise MissingPermissions("Seems like you have not enough permissions to do that, huh?")
         return True
     return commands.check(predicate)
 
 class Administration(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-
-    @commands.command(help = "Banea a un usuario: c.ban <usuario (mención) o ID> <borrar mensajes (días) | opcional> <razón | opcional>")
+    
+    @commands.command(help = "Ban a user: c.ban <user (mention) or ID> <delete messages (days) | optional> <reason | optional>")
     @has_ban_permissions()
     async def ban(self, ctx, users: commands.Greedy[discord.User] = None, deleteDays: typing.Optional[int] = 0,
-                   *, reason: str = None):
+                    *, reason: str = None):
         
         deleteSecs = deleteDays * 8640 # Days to seconds
         bannedMembers = []
 
         if users is None:
-            await ctx.reply("¡Debes ingresar al menos a un usuario!")
+            await ctx.reply("You must enter at least one user!")
             return
         else:
             for user in users:
@@ -57,18 +57,18 @@ class Administration(commands.Cog):
 
         # Validates the number of members banned and replies
         if len(bannedMembers) > 1:
-            await ctx.send(f"{membersMention} fueron baneados del servidor{givenReason}")
+            await ctx.send(f"{membersMention} were banned from the server{givenReason}")
         elif len(bannedMembers) == 1:
-            await ctx.send(f"{membersMention} fue baneado del servidor{givenReason}")
+            await ctx.send(f"{membersMention} was banned from the server{givenReason}")
         else:
-            await ctx.send("Un error inesperado ha ocurrido...")
-    
+            await ctx.send("An unexpected error has occurred...")
+
     @ban.error
     async def ban_error(self, ctx, error):
         if isinstance(error, MissingPermissions):
             await ctx.send(error)
-    
-    @commands.command(help = "Muestra la lista de usuarios baneados.")
+
+    @commands.command(help = "Shows bans list: c.bans")
     @has_ban_permissions()
     async def bans(self, ctx):
         
@@ -77,7 +77,7 @@ class Administration(commands.Cog):
         # Gets ban entries (contain an user and an optional reason)
         bans = [entry async for entry in ctx.guild.bans()]
 
-        embed = discord.Embed(title = f"Usuarios baneados de {ctx.guild.name}.",
+        embed = discord.Embed(title = f"Ban list of {ctx.guild.name}.",
                               timestamp = datetime.now(),
                               color = discord.Colour.pink())
         
@@ -87,21 +87,21 @@ class Administration(commands.Cog):
                 if len(embed.fields) > 25:
                     break
                 if len(embed) > 5900:
-                    embed.field(name = "Demasiados elementos en la lista.")
+                    embed.field(name = "Too many items in the list.")
                 else:
-                    embed.add_field(name = entry.user.name, value = f"ID del usuario: {entry.user.id} \nRazón: {'Sin especificar.' if entry.reason is None else entry.reason} \nBot: {'No' if entry.user.bot is False else 'Sí'}",
+                    embed.add_field(name = entry.user.name, value = f"User ID: {entry.user.id}. \nReason: {'Unspecified.' if entry.reason+'.' is None else entry.reason+'.'} \nBot: {'No.' if entry.user.bot is False else 'Yes.'}",
                                     inline = False)
             
             await ctx.reply(embed = embed)
         else:
-            await ctx.reply("No hay usuarios baneados en el servidor.")
+            await ctx.reply("This server has no banned users.")
                 
     @bans.error
     async def bans_error(self, ctx, error):
         if isinstance(error, MissingPermissions):
             await ctx.send(error)
 
-    @commands.command(help = "Remueve el ban de un usuario: c.ban <usuario> <razón | opcional>")
+    @commands.command(help = "Unban a user: c.ban <user (mention) or ID> <reason | optional>")
     @has_ban_permissions()
     async def unban(self, ctx, users: commands.Greedy[discord.User] = None, *, reason: str = None):
         bannedUsers = [entry.user async for entry in ctx.guild.bans()]
@@ -110,7 +110,7 @@ class Administration(commands.Cog):
         nonbannedMembers = []
 
         if users is None:
-            await ctx.reply("¡Debes ingresar al menos a un usuario!")
+            await ctx.reply("You must enter at least one user!")
         else:
             for user in users:
                 if len(bannedUsers) > 0:
@@ -135,15 +135,15 @@ class Administration(commands.Cog):
         givenReason = '.' if reason == None else ' por ' + reason + '.'
 
         if len(nonbannedMembers) > 0:
-                await ctx.send(f"{'Los usuarios '+errorMention+' no fueron encontrados' if len(nonbannedMembers) > 1 else 'El usuario '+errorMention+' no fue encontrado'} en la lista de baneados.")
+                await ctx.send(f"{'Users '+errorMention+' were not found' if len(nonbannedMembers) > 1 else 'User '+errorMention+' was not found'} on the banned list.")
 
         # Validates the number of members banned and replies
         if len(unbannedMembers) > 1:
-            await ctx.send(f"{membersMention} fueron desbaneados del servidor{givenReason}")
+            await ctx.send(f"{membersMention} were unbanned from the server{givenReason}")
         elif len(unbannedMembers) == 1:
-            await ctx.send(f"{membersMention} fue desbaneado del servidor{givenReason}")
+            await ctx.send(f"{membersMention} was unbanned from the server{givenReason}")
         else:
-            await ctx.reply("No hay usuarios baneados en el servidor.")
+            await ctx.reply("This server has no banned users.")
     
     @unban.error
     async def unban_error(self, ctx, error):
